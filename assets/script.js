@@ -1,10 +1,30 @@
-const searchButton = document.querySelector(".search-button");
+const search = document.querySelector(".search-button");
 const input = document.querySelector("#search-input");
 const apiKey = "fd607638c6f3eabf1629f69a02128177";
+const historySection = document.querySelector("#historySection");
 
-searchButton.addEventListener("click", function (event) {
+search.addEventListener("click", function (event) {
     event.preventDefault();
     const placeName = input.value;
+    // Check if search term has been entered before
+    // var history = [];
+    // if (history.indexOf(placeName) === -1) {
+    //     console.log("Search term already exists in local storage");
+    // }
+    // else (history.indexOf(placeName) !== -1)
+    // // Save search term to local storage
+    // history.push(placeName);
+    // localStorage.setItem("searchHistory", JSON.stringify(history));
+    // function searchHistory() {
+    //     history.forEach(function (place) {
+    //         var button = document.createElement("button");
+    //         button.className = "search-button";
+    //         button.innerHTML = place;
+    //         historySection.appendChild(button);
+    //     });
+    // }
+
+
     const queryGeocoded = "http://api.openweathermap.org/geo/1.0/direct?q=" + placeName + "&limit=5&appid=" + apiKey;
     axios.get(queryGeocoded).then(function (geoResponse) {
         var placeLat = geoResponse.data[0].lat
@@ -14,54 +34,60 @@ searchButton.addEventListener("click", function (event) {
         // check if the response is valid and alert to the user 
         // add feature for country search?
         axios.get(queryURL).then(function (response) {
-            // getting the data only (without time) using moment.js to convert unix
-            const timestamp = response.data.list[0].dt;
-            const dateConverted = moment.unix(timestamp).format("dddd, MMMM Do YYYY");
+            //console.log(response);
+            const placeData = response.data;
+            const place = placeData[0];
+            const weatherList = placeData.list;
+            //console.log(weatherList);
+            var j = 0;
+            for (let i = 0; i < weatherList.length; i += 8) {
+                const weather = weatherList[i];
+                console.log(weather);
 
-            //adding the location information, with city and country
-            const locationDate = "the weather in " + response.data.city.name + ", " + response.data.city.country + " on " + dateConverted + " is:" ;
+                // getting the data only (without time) using moment.js to convert unix
+                const timestamp = weatherList[i].dt;
+                const dateConverted = moment.unix(timestamp).format("dddd, MMMM Do YYYY");
 
-            // description of the weather
-            const description = response.data.list[0].weather[0].description + " ";
+                //adding the location information, with city and country
+                // const locationDate = "the weather in " + place.city.name + ", " + place.city.country + " on " + dateConverted + " is:";
 
-            // windspeed
-            const windSpeed = "with a windspeed of " + response.data.list[0].wind.speed + " mph ";
+                // description of the weather
+                const description = weatherList[i].weather[0].description + " ";
 
-            // the icon for the current weather
-            const icon = "http://openweathermap.org/img/w/" + response.data.list[0].weather[0].icon + ".png";
+                // windspeed
+                const windSpeed = "with a windspeed of " + weatherList[i].wind.speed + " mph ";
 
-            // the temperature
-            const temp = "the temperature is " + ((response.data.list[0].main.temp - 273.15).toFixed(1)) + " centigrade";
+                // the icon for the current weather
+                const icon = "http://openweathermap.org/img/w/" + weatherList[i].weather[0].icon + ".png";
 
-            // the humidity
-            const humidity = "with humidity of " + response.data.list[0].main.humidity;
+                // the temperature
+                const temp = "the temperature is " + ((weatherList[i].main.temp - 273.15).toFixed(1)) + " centigrade";
 
-            //console logging the whole report to check
-            const weatherResult = locationDate + description + windSpeed + icon + temp + humidity;
+                // the humidity
+                const humidity = "with humidity of " + weatherList[i].main.humidity;
 
-            console.log(weatherResult);
-            document.querySelector('.locationDate').innerHTML = locationDate;
-            document.querySelector('.description').innerHTML = description;
-            document.querySelector('.windSpeed').innerHTML = windSpeed;
-            document.querySelector('.humidity').innerHTML = humidity;
-            document.querySelector('.icon').src = icon;
+                //console logging the whole report to check
+                //const weatherResult = locationDate + description + windSpeed + icon + temp + humidity;
 
-
-
-            searchHistory();
-
-            function searchHistory() {
-                var history = JSON.parse(localStorage.getItem("history")) || [];
-                var historySection = document.getElementById("history");
-                history.forEach(function (place) {
-                    var button = document.createElement("button");
-                    button.className = "search-button";
-                    button.innerHTML = place;
-                    historySection.appendChild(button);
-                });
+                // console.log(weatherResult);
+                if (j == 0) {
+                    //document.querySelector('.locationDate').innerHTML = locationDate;
+                    document.querySelector('.description').innerHTML = description;
+                    document.querySelector('.temp').innerHTML = temp;
+                    document.querySelector('.windSpeed').innerHTML = windSpeed;
+                    document.querySelector('.humidity').innerHTML = humidity;
+                    document.querySelector('.icon').src = icon;
+                } else {
+                    const forecast = document.createElement("div");
+                    forecast.classList.add("forecast", "card", "col-lg-2", "mx-2", "my-2");
+                    forecast.innerHTML = "<h4>" + "" + "</h4>" + "<img class='icon' src='" + icon + "'>" + "<p class='card-text description'>" + description + "</p>" + "<p class='card-text windSpeed'>" + windSpeed + "</p>" + "<p class='card-text humidity'>" + humidity + "</p>";
+                    document.querySelector('#forecastAhead').appendChild(forecast);
+                }
+                j++;
+                if (j > 5) break;
+    
+                // searchHistory();
             }
         });
     });
 });
-
-// store the search as a key with the name London
