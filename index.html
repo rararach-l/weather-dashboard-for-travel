@@ -35,7 +35,7 @@
                 aria-labelledby="form-heading" aria-controls="today forecast" />
               <div class="input-group-append">
                 <!-- target this button with an event listener and make call to API -->
-                <button type="submit" class="btn search-button" id="search-button" aria-label="submit search">
+                <button type="submit" class="btn search-button" aria-label="submit search">
                   Search
                 </button>
                 <hr class="hr weather-hr" />
@@ -44,11 +44,19 @@
           </div>
         </form>
         <!-- store the history here -->
-        <div class="list-group" id="history">history retreived from local storage</div>
+        <div class="list-group search-button" id="history">history retreived from local storage</div>
       </aside>
 
       <div class="col-lg-9 pb-3 float-right">
-        <section id="today" class="mt-3" role="region" aria-live="polite"> display search results here</section>
+        <section id="today" class="mt-3" role="region" aria-live="polite">
+          <div class="card-body">
+            <h3 class="card-title locationDate"></h3>
+            <img class="icon">
+            <p class="card-text description"></p>
+            <p class="card-text windSpeed"></p>
+            <p class="card-text humidity"></p>
+            
+        </section>
 
         <section id="forecast" class="mt-3" role="region" aria-live="polite">5 day forecast</section>
       </div>
