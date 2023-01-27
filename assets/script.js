@@ -25,7 +25,7 @@ search.addEventListener("click", function (event) {
     // }
 
 
-    const queryGeocoded = "http://api.openweathermap.org/geo/1.0/direct?q=" + placeName + "&limit=5&appid=" + apiKey;
+    const queryGeocoded = "https://api.openweathermap.org/geo/1.0/direct?q=" + placeName + "&limit=5&appid=" + apiKey;
     axios.get(queryGeocoded).then(function (geoResponse) {
         var placeLat = geoResponse.data[0].lat
         var placeLong = geoResponse.data[0].lon
@@ -58,7 +58,7 @@ search.addEventListener("click", function (event) {
                 const windSpeed = "with a windspeed of " + weatherList[i].wind.speed + " mph ";
 
                 // the icon for the current weather
-                const icon = "http://openweathermap.org/img/w/" + weatherList[i].weather[0].icon + ".png";
+                const icon = "https://openweathermap.org/img/w/" + weatherList[i].weather[0].icon + ".png";
 
                 // the temperature
                 const temp = "the temperature is " + ((weatherList[i].main.temp - 273.15).toFixed(1)) + " centigrade";
