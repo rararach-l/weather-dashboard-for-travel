@@ -80,7 +80,7 @@ search.addEventListener("click", function (event) {
     });
 });
 
-window.onload = function(){
+window.addEventListener("load", function (event){
     const keys = Object.keys(localStorage);
 
     // Loop through keys
@@ -93,4 +93,4 @@ window.onload = function(){
         button.innerHTML = key;
         historySection.appendChild(button);
     }
-};
+});
