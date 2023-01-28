@@ -6,26 +6,31 @@ const historySection = document.querySelector("#historySection");
 search.addEventListener("click", function (event) {
     event.preventDefault();
     const placeName = input.value;
+
     // Check if search term has been entered before
-    var history = [];
-    if (history.indexOf(placeName) === -1) {
-        console.log("Search term already exists in local storage");
-    }
-    else (history.indexOf(placeName) !== -1)
-    // Save search term to local storage
-    history.push(placeName);
-    localStorage.setItem("searchHistory", JSON.stringify(history));
-    function searchHistory() {
-        history.forEach(function (place) {
-            var button = document.createElement("button");
-            button.className = "search-button";
-            button.innerHTML = place;
-            historySection.appendChild(button);
-        });
+    var history = localStorage.getItem("searchHistory");
+    if (history) {
+        history = JSON.parse(history);
+    } else {
+        history = [];
     }
 
-    const queryGeocoded = "https://api.openweathermap.org/geo/1.0/direct?q=" + placeName + "&limit=5&appid=" + apiKey;
-    axios.get(queryGeocoded).then(function (geoResponse) {
+    if (history.indexOf(placeName) !== -1) {
+        console.log("Search term already exists in local storage");
+    } else {
+        // Save search term to local storage
+        history.push(placeName);
+        localStorage.setItem("searchHistory", JSON.stringify(history));
+
+        // Create button for search term
+        var button = document.createElement("button");
+        button.className = "search-button";
+        button.innerHTML = placeName;
+        historySection.appendChild(button);
+    }
+
+        const queryGeocoded = "https://api.openweathermap.org/geo/1.0/direct?q=" + placeName + "&limit=5&appid=" + apiKey;
+        axios.get(queryGeocoded).then(function (geoResponse) {
         var placeLat = geoResponse.data[0].lat
         var placeLong = geoResponse.data[0].lon
         const queryURL = "https://api.openweathermap.org/data/2.5/forecast?lat=" + placeLat + "&lon=" + placeLong + "&appid=" + apiKey;
@@ -47,7 +52,6 @@ search.addEventListener("click", function (event) {
 
                 //adding the location information, with city and country
                 const locationDate = "the weather in " + response.data.city.name + ", " + response.data.city.country + " on " + dateConverted + " is:";
-                console.log(locationDate)
 
                 // description of the weather
                 const description = weatherList[i].weather[0].description + " ";
@@ -82,13 +86,14 @@ search.addEventListener("click", function (event) {
                     forecast.classList.add("card", "col-md-2", "mb-3");
                     forecast.innerHTML = "<h5>" + dateConverted + "</h5>" + "<img class='icon' src='" + icon + "'>" + "<p class='card-text description'>" + description + "</p>" + "<p class='card-text windSpeed'>" + windSpeed + "</p>" + "<p class='card-text humidity'>" + humidity + "</p>";
                     document.querySelector('#forecastAhead').appendChild(forecast);
-
                 }
                 j++;
                 if (j > 5) break;
-
-                searchHistory();
             }
         });
     });
+});
+
+window.addEventListener("load", function() {
+    var history = localStorage.getItem("searchHistory");
 });
