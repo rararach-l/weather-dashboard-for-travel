@@ -7,35 +7,21 @@ search.addEventListener("click", function (event) {
     event.preventDefault();
     const placeName = input.value;
 
-    // Check if search term has been entered before
-    var history = localStorage.getItem("searchHistory");
-    if (history) {
-        history = JSON.parse(history);
-    } else {
-        history = [];
-    }
+    // Save search term as key-value pair in local storage
+    localStorage.setItem(placeName, placeName);
 
-    if (history.indexOf(placeName) !== -1) {
-        console.log("Search term already exists in local storage");
-    } else {
-        // Save search term to local storage
-        history.push(placeName);
-        localStorage.setItem("searchHistory", JSON.stringify(history));
+    // Create button for search term
+    var button = document.createElement("button");
+    button.className = "search-button";
+    button.innerHTML = placeName;
+    historySection.appendChild(button);
 
-        // Create button for search term
-        var button = document.createElement("button");
-        button.className = "search-button";
-        button.innerHTML = placeName;
-        historySection.appendChild(button);
-    }
-
-        const queryGeocoded = "https://api.openweathermap.org/geo/1.0/direct?q=" + placeName + "&limit=5&appid=" + apiKey;
-        axios.get(queryGeocoded).then(function (geoResponse) {
+    // Perform API call and display weather data
+    const queryGeocoded = "https://api.openweathermap.org/geo/1.0/direct?q=" + placeName + "&limit=5&appid=" + apiKey;
+    axios.get(queryGeocoded).then(function (geoResponse) {
         var placeLat = geoResponse.data[0].lat
         var placeLong = geoResponse.data[0].lon
         const queryURL = "https://api.openweathermap.org/data/2.5/forecast?lat=" + placeLat + "&lon=" + placeLong + "&appid=" + apiKey;
-        // check if the response is valid and alert to the user 
-        // add feature for country search?
         axios.get(queryURL).then(function (response) {
             const placeData = response.data;
             //const place = placeData[0];
@@ -94,6 +80,17 @@ search.addEventListener("click", function (event) {
     });
 });
 
-window.addEventListener("load", function() {
-    var history = localStorage.getItem("searchHistory");
-});
+window.onload = function(){
+    const keys = Object.keys(localStorage);
+
+    // Loop through keys
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+    
+        // Create button for key
+        var button = document.createElement("button");
+        button.className = "search-button";
+        button.innerHTML = key;
+        historySection.appendChild(button);
+    }
+};
