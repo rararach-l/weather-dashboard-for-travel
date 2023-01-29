@@ -2,42 +2,51 @@ const search = document.querySelector(".search-button");
 const input = document.querySelector("#search-input");
 const apiKey = "fd607638c6f3eabf1629f69a02128177";
 const historySection = document.querySelector("#historySection");
+const regionNamesInEnglish = new Intl.DisplayNames(['en'], { type: 'region' });
 
 search.addEventListener("click", function (event) {
     event.preventDefault();
-    const placeName = input.value;
+    var place = input.value.trim().toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
 
     // Save search term as key-value pair in local storage
-    localStorage.setItem(placeName, placeName);
+    localStorage.setItem(place, place);
 
     // Create button for search term
-    var button = document.createElement("button");
+    const button = document.createElement("button");
     button.className = "search-button";
-    button.innerHTML = placeName;
+    button.innerHTML = place;
     historySection.appendChild(button);
 
     // Perform API call and display weather data
-    const queryGeocoded = "https://api.openweathermap.org/geo/1.0/direct?q=" + placeName + "&limit=5&appid=" + apiKey;
+    const queryGeocoded = "https://api.openweathermap.org/geo/1.0/direct?q=" + place + "&limit=5&appid=" + apiKey;
     axios.get(queryGeocoded).then(function (geoResponse) {
-        var placeLat = geoResponse.data[0].lat
-        var placeLong = geoResponse.data[0].lon
+        const placeLat = geoResponse.data[0].lat
+        const placeLong = geoResponse.data[0].lon
         const queryURL = "https://api.openweathermap.org/data/2.5/forecast?lat=" + placeLat + "&lon=" + placeLong + "&appid=" + apiKey;
+
         axios.get(queryURL).then(function (response) {
+
             const placeData = response.data;
-            //const place = placeData[0];
+
+            const countryCode = placeData.city.country;
+
+            const countryName = regionNamesInEnglish.of(countryCode);
+
+            var placeName = place + "," + " " + countryName;
             const weatherList = placeData.list;
-            var j = 0;
+
+            let j = 0;
             for (let i = 0; i < weatherList.length; i += 8) {
-                const weather = weatherList[i];
+                // const weather = weatherList[i];
                 //console.log(weather);
-                console.log(response)
+                //console.log(response)
 
                 // getting the data only (without time) using moment.js to convert unix
                 const timestamp = weatherList[i].dt;
                 const dateConverted = moment.unix(timestamp).format("dddd, MMMM Do YYYY");
 
                 //adding the location information, with city and country
-                const locationDate = "the weather in " + response.data.city.name + ", " + response.data.city.country + " on " + dateConverted + " is:";
+                // const locationDate = "the weather in " + response.data.city.name + ", " + response.data.city.country + " on " + dateConverted + " is:";
 
                 // description of the weather
                 const description = weatherList[i].weather[0].description + " ";
@@ -77,20 +86,20 @@ search.addEventListener("click", function (event) {
                 if (j > 5) break;
             }
         });
+
+        window.addEventListener("load", function (event) {
+            const keys = Object.keys(localStorage);
+
+            // Loop through keys
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+
+                // Create button for key
+                const newButton = document.createElement("button");
+                newButton.className = "search-button";
+                newButton.innerHTML = key;
+                historySection.appendChild(newButton);
+            }
+        });
     });
-});
-
-window.addEventListener("load", function (event){
-    const keys = Object.keys(localStorage);
-
-    // Loop through keys
-    for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-    
-        // Create button for key
-        var button = document.createElement("button");
-        button.className = "search-button";
-        button.innerHTML = key;
-        historySection.appendChild(button);
-    }
 });
